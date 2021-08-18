@@ -1,0 +1,15 @@
+{
+  "name": "javascript-games",
+  "version": "1.0.0",
+  "description": "Old games build with JS",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "games",
+    "js"
+  ],
+  "author": "Douglas Silva",
+  "license": "MIT"
+}

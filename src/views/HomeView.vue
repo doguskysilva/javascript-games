@@ -2,9 +2,9 @@
   <div class="p-6">
     <h1 class="my-6 font-bold text-5xl">All Games</h1>
     <GameCard
-      name="Snake"
-      description="Famoso jogo da cobrinha"
-      route="snake"
+      name="Genius"
+      description="Tente a sua maior sequência"
+      route="genius"
     ></GameCard>
   </div>
 </template>

@@ -26,15 +26,12 @@
   </router-link>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
+<script setup lang="ts">
+import { defineProps } from "vue";
 
-export default defineComponent({
-  name: "GameCard",
-  props: {
-    route: String,
-    name: String,
-    description: String,
-  },
+defineProps({
+  route: String,
+  name: String,
+  description: String,
 });
 </script>

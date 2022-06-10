@@ -21,6 +21,7 @@ let gameIsRunning = false;
 let isPlayerTime = false;
 let isGameTime = false;
 let sequence: Array<number> = [];
+let currentClickPlayer = 0;
 
 interface Coordinate {
   x: number;
@@ -52,7 +53,7 @@ const blocks: Array<Block> = [
     color: "red",
   },
   {
-    id: 2,
+    id: 3,
     x: spacing,
     y: spacing + size + spacing,
     height: size,
@@ -60,7 +61,7 @@ const blocks: Array<Block> = [
     color: "blue",
   },
   {
-    id: 3,
+    id: 4,
     x: spacing + size + spacing,
     y: spacing + size + spacing,
     height: size,
@@ -69,13 +70,25 @@ const blocks: Array<Block> = [
   },
 ];
 
-function drawGame(ctx: CanvasRenderingContext2D, blocks: Array<Block>) {
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+function drawGame(ctx: CanvasRenderingContext2D | null, blocks: Array<Block>) {
   blocks.forEach((block) => {
+    drawBlock(ctx, block);
+  });
+}
+
+function drawBlock(
+  ctx: CanvasRenderingContext2D | null,
+  block: Block,
+  overwriteColor: string | null = null
+) {
+  if (ctx) {
     ctx.beginPath();
     ctx.rect(block.x, block.y, block.height, block.width);
-    ctx.fillStyle = block.color;
+    ctx.fillStyle = overwriteColor ? overwriteColor : block.color;
     ctx.fill();
-  });
+  }
 }
 
 function isPointInRectangle(point: Coordinate, block: Block) {
@@ -93,25 +106,77 @@ function checkClick(event: MouseEvent) {
     y: event.offsetY,
   };
 
+  if (!isPlayerTime && !gameIsRunning) return;
+
   blocks.forEach((block) => {
     if (isPointInRectangle(mousePoint, block)) {
-      console.log("click on circle: " + block.id);
+      if (block.id === sequence[currentClickPlayer]) {
+        console.log("Parabéns acertou");
+        currentClickPlayer++;
+
+        if (currentClickPlayer == sequence.length) {
+          newRound();
+        }
+      } else {
+        console.log("Você errou o jogo acabou");
+        endGame();
+      }
     }
   });
 }
 
+function endGame() {
+  gameIsRunning = false;
+  isPlayerTime = false;
+  isGameTime = false;
+}
+
 function startGame() {
   gameIsRunning = true;
-  sequence = [];
+  sequence = [1, 2];
+  newRound();
+}
+
+function newRound() {
+  isGameTime = true;
+  isPlayerTime = false;
+  currentClickPlayer = 0;
+
+  sequence.push(getRandomInt(1, 5));
+
+  sleep(1000).then(() => {
+    playSequence().then(() => {
+      isPlayerTime = true;
+      isGameTime = false;
+      console.log("Eh a vez do Jogador");
+    });
+  });
+}
+
+async function playSequence() {
+  for (let currentBlock = 0; currentBlock < sequence.length; currentBlock++) {
+    const element = sequence[currentBlock];
+    blipBlock(blocks[element - 1]);
+    await sleep(1500);
+  }
+}
+
+function blipBlock(block: Block) {
+  drawBlock(context, block, "white");
+  setTimeout(() => drawBlock(context, block), 1000);
+}
+
+function getRandomInt(min: number, max: number) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min)) + min;
 }
 
 onMounted(() => {
   const screen = document.getElementById("game-genius") as HTMLCanvasElement;
   context = screen.getContext("2d");
 
-  if (context) {
-    drawGame(context, blocks);
-    screen.addEventListener("click", checkClick);
-  }
+  drawGame(context, blocks);
+  screen.addEventListener("click", checkClick);
 });
 </script>
